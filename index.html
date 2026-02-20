@@ -1,0 +1,1809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI∩* — Where AI Meets Everything That Matters</title>
+    <meta name="description" content="AI∩* is the first AI conference designed end-to-end through AI collaboration. Westport, Ireland. February 13-15, 2027.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --black: #050508;
+            --black-soft: #0a0a0f;
+            --white: #f0f0f5;
+            --atlantic: #1a3a5c;
+            --atlantic-light: #2a5a8c;
+            --atlantic-glow: #4a8ecc;
+            --atlantic-bright: #6ab4f0;
+            --gray-400: #8a8a9a;
+            --gray-600: #55556a;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--black);
+            color: var(--white);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ===== CANVAS ===== */
+        #particle-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ===== NAV ===== */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 1.5rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.4s ease;
+        }
+
+        nav.scrolled {
+            background: rgba(5, 5, 8, 0.9);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            padding: 1rem 3rem;
+        }
+
+        .nav-logo {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--white);
+            text-decoration: none;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-logo .nav-intersect { color: var(--atlantic-glow); }
+
+        .nav-name {
+            font-weight: 400;
+            font-size: 0.8rem;
+            color: var(--gray-600);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-left: 0.8rem;
+            vertical-align: baseline;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--gray-400);
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover { color: var(--white); }
+
+        .nav-cta {
+            background: transparent !important;
+            color: var(--atlantic-bright) !important;
+            padding: 0.5rem 1.2rem;
+            border: 1px solid var(--atlantic-glow);
+            border-radius: 2px;
+            transition: all 0.3s !important;
+        }
+
+        .nav-cta:hover {
+            background: var(--atlantic-glow) !important;
+            color: var(--white) !important;
+        }
+
+        .lang-toggle {
+            display: flex;
+            gap: 0;
+            align-items: center;
+        }
+
+        .lang-toggle button {
+            background: none;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: var(--gray-600);
+            padding: 0.35rem 0.7rem;
+            font-size: 0.7rem;
+            font-family: var(--font);
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 0.08em;
+            transition: all 0.3s;
+        }
+
+        .lang-toggle button:first-child { border-radius: 2px 0 0 2px; }
+        .lang-toggle button:last-child { border-radius: 0 2px 2px 0; border-left: none; }
+
+        .lang-toggle button.active {
+            color: var(--atlantic-bright);
+            border-color: var(--atlantic-glow);
+            background: rgba(74, 142, 204, 0.1);
+        }
+
+        .lang-toggle button:hover { color: var(--white); }
+
+        /* ===== HERO ===== */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Hero background slideshow */
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+
+        .hero-bg-slide {
+            position: absolute;
+            inset: -30px;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transform: scale(1);
+            transition: opacity 2s ease-in-out, transform 8s ease-in-out;
+        }
+
+        .hero-bg-slide.active {
+            opacity: 1;
+            transform: scale(1.06);
+        }
+
+        /* Dark overlay over images */
+        .hero-bg-overlay {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at center, rgba(5, 5, 8, 0.45) 0%, rgba(5, 5, 8, 0.7) 100%),
+                linear-gradient(180deg, rgba(5, 5, 8, 0.2) 0%, rgba(5, 5, 8, 0.8) 100%);
+            z-index: 1;
+        }
+
+        .hero-glow {
+            position: absolute;
+            width: 800px;
+            height: 800px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(74, 142, 204, 0.12) 0%, rgba(26, 58, 92, 0.05) 40%, transparent 70%);
+            animation: heroGlow 6s ease-in-out infinite;
+            z-index: 2;
+        }
+
+        .hero-glow-2 {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(106, 180, 240, 0.08) 0%, transparent 60%);
+            animation: heroGlow2 8s ease-in-out infinite;
+            z-index: 2;
+        }
+
+        @keyframes heroGlow {
+            0%, 100% { transform: scale(1) translate(0, 0); opacity: 0.6; }
+            33% { transform: scale(1.2) translate(30px, -20px); opacity: 1; }
+            66% { transform: scale(0.9) translate(-20px, 30px); opacity: 0.8; }
+        }
+
+        @keyframes heroGlow2 {
+            0%, 100% { transform: scale(1) translate(0, 0); opacity: 0.5; }
+            50% { transform: scale(1.3) translate(-40px, 20px); opacity: 0.9; }
+        }
+
+        /* Image label */
+        .hero-image-label {
+            position: absolute;
+            bottom: 5rem;
+            right: 2rem;
+            z-index: 3;
+            font-size: 0.6rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.25);
+            transition: opacity 0.8s;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 3;
+        }
+
+        .hero-symbol {
+            font-weight: 900;
+            line-height: 0.85;
+            letter-spacing: -0.05em;
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 0;
+        }
+
+        .hero-symbol .ai {
+            font-size: clamp(3.5rem, 7vw, 6rem);
+            background: linear-gradient(180deg, var(--white) 0%, rgba(240, 240, 245, 0.6) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-symbol .intersect {
+            font-size: clamp(3.5rem, 7vw, 6rem);
+            background: linear-gradient(135deg, var(--atlantic-glow) 0%, var(--atlantic-bright) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            filter: drop-shadow(0 0 60px rgba(74, 142, 204, 0.4));
+        }
+
+        .hero-rotating {
+            position: relative;
+            display: inline-block;
+            overflow: hidden;
+            vertical-align: baseline;
+            height: clamp(4rem, 8vw, 6.5rem);
+            min-width: 2ch;
+        }
+
+        .hero-rotating-word {
+            font-size: clamp(3.5rem, 7vw, 6rem);
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            display: block;
+            position: absolute;
+            left: 0;
+            top: 0;
+            white-space: nowrap;
+            opacity: 0;
+            transform: translateY(100%);
+            transition: opacity 0.6s cubic-bezier(0.23, 1, 0.32, 1), transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .hero-rotating-word.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .hero-rotating-word.exit-up {
+            opacity: 0;
+            transform: translateY(-100%);
+        }
+
+        .hero-rotating-word.is-topic {
+            background: linear-gradient(180deg, var(--white) 0%, rgba(240, 240, 245, 0.7) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-rotating-word.is-star {
+            background: linear-gradient(135deg, var(--atlantic-glow) 0%, var(--atlantic-bright) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 0 40px rgba(74, 142, 204, 0.5));
+        }
+
+        .hero-rotating-word.is-star.final-glow {
+            filter: drop-shadow(0 0 80px rgba(74, 142, 204, 0.6)) drop-shadow(0 0 120px rgba(106, 180, 240, 0.3));
+            transition: opacity 0.6s cubic-bezier(0.23, 1, 0.32, 1), transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), filter 1s ease;
+        }
+
+        .hero-pronunciation {
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: var(--gray-600);
+            letter-spacing: 0.08em;
+            margin-bottom: 1.5rem;
+            font-style: italic;
+        }
+
+        .hero-line {
+            width: 60px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--atlantic-glow), transparent);
+            margin: 0 auto 2rem;
+        }
+
+        .hero-tagline {
+            font-size: clamp(1rem, 2vw, 1.35rem);
+            font-weight: 300;
+            color: var(--gray-400);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 4rem;
+        }
+
+        .hero-details {
+            display: flex;
+            gap: 3rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .hero-detail {
+            text-align: center;
+        }
+
+        .hero-detail-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--white);
+            letter-spacing: 0.04em;
+        }
+
+        .hero-detail-label {
+            font-size: 0.65rem;
+            font-weight: 500;
+            color: var(--gray-600);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-top: 0.3rem;
+        }
+
+        .hero-scroll {
+            position: absolute;
+            bottom: 3rem;
+            z-index: 3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .hero-scroll-text {
+            font-size: 0.6rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--gray-600);
+        }
+
+        .hero-scroll-line {
+            width: 1px;
+            height: 40px;
+            background: linear-gradient(180deg, var(--atlantic-glow), transparent);
+            animation: scrollLine 2s ease-in-out infinite;
+        }
+
+        @keyframes scrollLine {
+            0%, 100% { opacity: 0.3; transform: scaleY(0.5); }
+            50% { opacity: 1; transform: scaleY(1); }
+        }
+
+        /* ===== FULL-BLEED SECTIONS ===== */
+        .full-bleed {
+            max-width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* ===== CONTAINED SECTIONS ===== */
+        .contained {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 10rem 3rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .section-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--atlantic-glow);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(74, 142, 204, 0.3), transparent);
+            max-width: 200px;
+        }
+
+        .section-heading {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.05;
+            letter-spacing: -0.04em;
+            margin-bottom: 2rem;
+        }
+
+        .section-heading .accent {
+            background: linear-gradient(135deg, var(--atlantic-glow), var(--atlantic-bright));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-body {
+            font-size: 1.2rem;
+            font-weight: 300;
+            line-height: 1.8;
+            color: var(--gray-400);
+            max-width: 650px;
+        }
+
+        /* ===== DIVIDER ===== */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(74, 142, 204, 0.15), transparent);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* ===== THESIS ===== */
+        .thesis-bilingual {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            margin-top: 4rem;
+        }
+
+        .thesis-col {
+            position: relative;
+            padding-top: 2rem;
+        }
+
+        .thesis-col::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 40px;
+            height: 2px;
+            background: var(--atlantic-glow);
+        }
+
+        .thesis-lang {
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--atlantic-glow);
+            margin-bottom: 1.2rem;
+        }
+
+        .thesis-text {
+            font-size: 1.25rem;
+            font-weight: 300;
+            line-height: 1.8;
+            color: var(--gray-400);
+        }
+
+        /* ===== INTERSECTIONS ===== */
+        .intersections-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+            margin-top: 4rem;
+        }
+
+        .intersection-card {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 3rem 2.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            cursor: default;
+        }
+
+        .intersection-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--atlantic-glow), transparent);
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .intersection-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 30% 0%, rgba(74, 142, 204, 0.08) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .intersection-card:hover {
+            background: rgba(255, 255, 255, 0.04);
+            transform: translateY(-4px);
+        }
+
+        .intersection-card:hover::before { opacity: 1; }
+        .intersection-card:hover::after { opacity: 1; }
+
+        .intersection-card h3 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin-bottom: 0.8rem;
+            letter-spacing: -0.02em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .intersection-card h3 .sym {
+            background: linear-gradient(135deg, var(--atlantic-glow), var(--atlantic-bright));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .intersection-card p {
+            font-size: 0.95rem;
+            color: var(--gray-600);
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== BIG QUOTE ===== */
+        .big-quote {
+            padding: 12rem 3rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .big-quote::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at center, rgba(74, 142, 204, 0.06) 0%, transparent 60%);
+        }
+
+        .big-quote blockquote {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: -0.03em;
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .big-quote blockquote .dim {
+            color: var(--gray-600);
+        }
+
+        /* ===== PROGRAM ===== */
+        .program-days {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+            margin-top: 4rem;
+        }
+
+        .program-day {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 3rem 2.5rem;
+            position: relative;
+            transition: background 0.3s;
+        }
+
+        .program-day:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .program-day-number {
+            font-size: 5rem;
+            font-weight: 900;
+            line-height: 1;
+            background: linear-gradient(180deg, rgba(74, 142, 204, 0.2) 0%, rgba(74, 142, 204, 0.05) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .program-day-label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--atlantic-glow);
+            margin-bottom: 0.3rem;
+        }
+
+        .program-day h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+            letter-spacing: -0.02em;
+        }
+
+        .program-day-date {
+            font-size: 0.85rem;
+            color: var(--gray-600);
+            margin-bottom: 2rem;
+        }
+
+        .program-day ul {
+            list-style: none;
+        }
+
+        .program-day ul li {
+            font-size: 0.9rem;
+            color: var(--gray-400);
+            padding: 0.6rem 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .program-day ul li:first-child { border-top: none; }
+
+        .program-day ul li::before {
+            content: '';
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--atlantic-glow);
+            flex-shrink: 0;
+        }
+
+        /* ===== AI-NATIVE ===== */
+        .ai-native-statement {
+            font-size: clamp(1.4rem, 3vw, 2.2rem);
+            font-weight: 300;
+            line-height: 1.7;
+            color: var(--gray-400);
+            max-width: 800px;
+            margin: 3rem 0 4rem;
+        }
+
+        .ai-native-statement em {
+            color: var(--white);
+            font-style: normal;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--white), var(--atlantic-bright));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .ai-chain {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+            margin-top: 2rem;
+        }
+
+        .ai-chain-item {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 2rem 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .ai-chain-item:hover {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .ai-chain-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--atlantic-glow), transparent);
+        }
+
+        .ai-chain-item h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+        }
+
+        .ai-chain-item p {
+            font-size: 0.85rem;
+            color: var(--gray-600);
+            line-height: 1.6;
+        }
+
+        /* ===== LOCATION ===== */
+        .location-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 4rem;
+            margin-top: 4rem;
+            align-items: start;
+        }
+
+        .location-info p {
+            font-size: 1.15rem;
+            color: var(--gray-400);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+            font-weight: 300;
+        }
+
+        .location-coords {
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            color: var(--gray-600);
+            font-family: monospace;
+        }
+
+        .location-travel {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(74, 142, 204, 0.1);
+            padding: 2.5rem;
+        }
+
+        .location-travel h4 {
+            font-size: 0.65rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--atlantic-glow);
+            margin-bottom: 1.5rem;
+        }
+
+        .location-travel ul { list-style: none; }
+
+        .location-travel ul li {
+            font-size: 0.9rem;
+            color: var(--gray-400);
+            padding: 0.8rem 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            line-height: 1.5;
+        }
+
+        .location-travel ul li:first-child { border-top: none; }
+
+        .location-travel ul li strong {
+            color: var(--white);
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+
+        /* ===== HOSTED ===== */
+        .hosted {
+            text-align: center;
+        }
+
+        .hosted .section-label { justify-content: center; }
+        .hosted .section-label::after { display: none; }
+        .hosted .section-body { margin: 0 auto; }
+
+        .hosted-org {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-top: 2rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hosted-org span {
+            background: linear-gradient(135deg, var(--atlantic-glow), var(--atlantic-bright));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ===== CTA ===== */
+        .cta-section {
+            text-align: center;
+            padding: 12rem 3rem 14rem;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1000px;
+            height: 600px;
+            background: radial-gradient(ellipse at center bottom, rgba(74, 142, 204, 0.1) 0%, transparent 60%);
+        }
+
+        .cta-section .section-heading {
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-subtitle {
+            font-size: 1.15rem;
+            font-weight: 300;
+            color: var(--gray-400);
+            margin-bottom: 3.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-button {
+            display: inline-block;
+            position: relative;
+            z-index: 1;
+            background: linear-gradient(135deg, var(--atlantic), var(--atlantic-light));
+            color: var(--white);
+            padding: 1.2rem 3.5rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: 0 0 40px rgba(74, 142, 204, 0.2);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 60px rgba(74, 142, 204, 0.35);
+        }
+
+        .cta-note {
+            font-size: 0.75rem;
+            color: var(--gray-600);
+            margin-top: 2rem;
+            letter-spacing: 0.05em;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== COUNTDOWN ===== */
+        .countdown {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            margin-bottom: 4rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .countdown-item {
+            text-align: center;
+        }
+
+        .countdown-value {
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            background: linear-gradient(180deg, var(--white), var(--gray-400));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+        }
+
+        .countdown-label {
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--gray-600);
+            margin-top: 0.3rem;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 4rem 3rem;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-logo {
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-logo .f-int {
+            background: linear-gradient(135deg, var(--atlantic-glow), var(--atlantic-bright));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .footer-sub {
+            font-size: 0.8rem;
+            color: var(--gray-600);
+            margin-bottom: 0.3rem;
+        }
+
+        .footer-ai {
+            font-size: 0.7rem;
+            color: var(--gray-600);
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* ===== BILINGUAL ===== */
+        [data-lang="es"] { display: none; }
+        body.lang-es [data-lang="en"] { display: none; }
+        body.lang-es [data-lang="es"] { display: block; }
+        body.lang-es span[data-lang="en"] { display: none; }
+        body.lang-es span[data-lang="es"] { display: inline; }
+        span[data-lang="es"] { display: none; }
+        body.lang-es li[data-lang="en"] { display: none; }
+        body.lang-es li[data-lang="es"] { display: flex; }
+        li[data-lang="es"] { display: none !important; }
+        body.lang-es li[data-lang="es"] { display: flex !important; }
+        body.lang-es p[data-lang="en"] { display: none; }
+        body.lang-es p[data-lang="es"] { display: block; }
+        body.lang-es h3[data-lang="en"] { display: none; }
+        body.lang-es h3[data-lang="es"] { display: block; }
+        h3[data-lang="es"] { display: none; }
+        body.lang-es h4[data-lang="en"] { display: none; }
+        body.lang-es h4[data-lang="es"] { display: block; }
+        h4[data-lang="es"] { display: none; }
+
+        /* ===== FADE IN ===== */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 1s cubic-bezier(0.23, 1, 0.32, 1), transform 1s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .fade-in-delay-1 { transition-delay: 0.1s; }
+        .fade-in-delay-2 { transition-delay: 0.2s; }
+        .fade-in-delay-3 { transition-delay: 0.3s; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 900px) {
+            nav { padding: 1rem 1.5rem; }
+            .nav-links a:not(.nav-cta):not(.lang-toggle *) { display: none; }
+            .nav-links { gap: 1rem; }
+            .contained { padding: 6rem 1.5rem; }
+            .thesis-bilingual { grid-template-columns: 1fr; gap: 3rem; }
+            .intersections-grid { grid-template-columns: 1fr 1fr; }
+            .program-days { grid-template-columns: 1fr; }
+            .ai-chain { grid-template-columns: 1fr 1fr; }
+            .location-grid { grid-template-columns: 1fr; gap: 3rem; }
+            .big-quote { padding: 8rem 2rem; }
+            .hero-details { flex-direction: column; gap: 1.5rem; }
+            .countdown { gap: 1.5rem; }
+            .countdown-value { font-size: 2.2rem; }
+            .cta-section { padding: 8rem 1.5rem 10rem; }
+        }
+
+        @media (max-width: 550px) {
+            .hero-symbol {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .hero-symbol .ai,
+            .hero-symbol .intersect,
+            .hero-rotating-word {
+                font-size: 2.5rem !important;
+            }
+            .hero-rotating {
+                height: 3rem;
+            }
+            .nav-name { display: none; }
+            .intersections-grid { grid-template-columns: 1fr; }
+            .ai-chain { grid-template-columns: 1fr; }
+            .countdown-value { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PARTICLE CANVAS -->
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- NAV -->
+    <nav>
+        <a href="#" class="nav-logo">AI<span class="nav-intersect">∩</span>* <span class="nav-name">AI Intersect</span></a>
+        <div class="nav-links">
+            <a href="#program" data-lang="en">Program</a>
+            <a href="#program" data-lang="es">Programa</a>
+            <a href="#location" data-lang="en">Location</a>
+            <a href="#location" data-lang="es">Ubicación</a>
+            <div class="lang-toggle">
+                <button id="btn-en" class="active">EN</button>
+                <button id="btn-es">ES</button>
+            </div>
+            <a href="#register" class="nav-cta" data-lang="en">Register</a>
+            <a href="#register" class="nav-cta" data-lang="es">Registrar</a>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-bg" id="hero-bg"></div>
+        <div class="hero-bg-overlay"></div>
+        <div class="hero-glow"></div>
+        <div class="hero-glow-2"></div>
+        <div class="hero-image-label" id="hero-image-label"></div>
+        <div class="hero-content">
+            <div class="hero-symbol">
+                <span class="ai">AI</span><span class="intersect">∩</span><span class="hero-rotating" id="hero-rotating"></span>
+            </div>
+            <div class="hero-pronunciation">
+                <span data-lang="en">Pronounced: "AI Intersect"</span>
+                <span data-lang="es">Se pronuncia: "AI Intersect"</span>
+            </div>
+            <div class="hero-line"></div>
+            <p class="hero-tagline">
+                <span data-lang="en">Where AI meets everything that matters</span>
+                <span data-lang="es">Donde la IA se encuentra con todo lo que importa</span>
+            </p>
+            <div class="hero-details">
+                <div class="hero-detail">
+                    <div class="hero-detail-value">
+                        <span data-lang="en">February 13–15, 2027</span>
+                        <span data-lang="es">13–15 de febrero, 2027</span>
+                    </div>
+                    <div class="hero-detail-label">
+                        <span data-lang="en">Date</span>
+                        <span data-lang="es">Fecha</span>
+                    </div>
+                </div>
+                <div class="hero-detail">
+                    <div class="hero-detail-value">Westport, Ireland</div>
+                    <div class="hero-detail-label">
+                        <span data-lang="en">Location</span>
+                        <span data-lang="es">Ubicación</span>
+                    </div>
+                </div>
+                <div class="hero-detail">
+                    <div class="hero-detail-value">
+                        <span data-lang="en">Invitation Only</span>
+                        <span data-lang="es">Solo por Invitación</span>
+                    </div>
+                    <div class="hero-detail-label">
+                        <span data-lang="en">Access</span>
+                        <span data-lang="es">Acceso</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="hero-scroll">
+            <span class="hero-scroll-text">Scroll</span>
+            <div class="hero-scroll-line"></div>
+        </div>
+    </section>
+
+    <!-- THESIS -->
+    <div class="divider"></div>
+    <section class="contained fade-in">
+        <div class="section-label">
+            <span data-lang="en">The Thesis</span>
+            <span data-lang="es">La Tesis</span>
+        </div>
+        <h2 class="section-heading">
+            <span data-lang="en">AI doesn't stand alone.<br>It <span class="accent">intersects</span> everything.</span>
+            <span data-lang="es">La IA no existe sola.<br>Se <span class="accent">intersecta</span> con todo.</span>
+        </h2>
+        <div class="thesis-bilingual">
+            <div class="thesis-col">
+                <div class="thesis-lang">English</div>
+                <p class="thesis-text">AI∩* is not another AI conference. It is a convergence: of Mexico and Ireland, of academia and industry, of the technical and the deeply human. Every session answers one question: what happens when AI intersects with the thing you care about most?</p>
+            </div>
+            <div class="thesis-col">
+                <div class="thesis-lang">Español</div>
+                <p class="thesis-text">AI∩* no es otra conferencia de IA. Es una convergencia: de México e Irlanda, de la academia y la industria, de lo técnico y lo profundamente humano. Cada sesión responde a una pregunta: ¿qué pasa cuando la IA se intersecta con lo que más te importa?</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- BIG QUOTE -->
+    <div class="divider"></div>
+    <div class="big-quote fade-in">
+        <blockquote>
+            <span data-lang="en"><span class="dim">The</span> * <span class="dim">is a wildcard.</span><br>You <span class="accent">fill it in.</span></span>
+            <span data-lang="es"><span class="dim">El</span> * <span class="dim">es un comodín.</span><br>Tú lo <span class="accent">completas.</span></span>
+        </blockquote>
+    </div>
+
+    <!-- INTERSECTIONS -->
+    <div class="divider"></div>
+    <section class="contained fade-in">
+        <div class="section-label">
+            <span data-lang="en">The Intersections</span>
+            <span data-lang="es">Las Intersecciones</span>
+        </div>
+        <h2 class="section-heading">AI<span class="accent">∩</span>___</h2>
+        <div class="intersections-grid">
+            <div class="intersection-card fade-in">
+                <h3>AI<span class="sym">∩</span>Education</h3>
+                <p data-lang="en">How learning transforms when AI enters the classroom</p>
+                <p data-lang="es">Cómo se transforma el aprendizaje cuando la IA entra al aula</p>
+            </div>
+            <div class="intersection-card fade-in fade-in-delay-1">
+                <h3>AI<span class="sym">∩</span>Work</h3>
+                <p data-lang="en">The future of jobs, skills, and human value</p>
+                <p data-lang="es">El futuro del empleo, las habilidades y el valor humano</p>
+            </div>
+            <div class="intersection-card fade-in fade-in-delay-2">
+                <h3>AI<span class="sym">∩</span>Creativity</h3>
+                <p data-lang="en">Art, music, writing, and the question of authorship</p>
+                <p data-lang="es">Arte, música, escritura y la cuestión de la autoría</p>
+            </div>
+            <div class="intersection-card fade-in fade-in-delay-1">
+                <h3>AI<span class="sym">∩</span>Society</h3>
+                <p data-lang="en">Ethics, governance, and the shape of what comes next</p>
+                <p data-lang="es">Ética, gobernanza y la forma de lo que viene</p>
+            </div>
+            <div class="intersection-card fade-in fade-in-delay-2">
+                <h3>AI<span class="sym">∩</span>Business</h3>
+                <p data-lang="en">Strategy, disruption, and building what matters</p>
+                <p data-lang="es">Estrategia, disrupción y construir lo que importa</p>
+            </div>
+            <div class="intersection-card fade-in fade-in-delay-3">
+                <h3>AI<span class="sym">∩</span>You</h3>
+                <p data-lang="en">Bring your own intersection. The * is yours.</p>
+                <p data-lang="es">Trae tu propia intersección. El * es tuyo.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROGRAM -->
+    <div class="divider"></div>
+    <section class="contained fade-in" id="program">
+        <div class="section-label">
+            <span data-lang="en">The Program</span>
+            <span data-lang="es">El Programa</span>
+        </div>
+        <h2 class="section-heading">
+            <span data-lang="en">Three days.<br>Two languages.<br><span class="accent">One conversation.</span></span>
+            <span data-lang="es">Tres días.<br>Dos idiomas.<br><span class="accent">Una conversación.</span></span>
+        </h2>
+        <div class="program-days">
+            <div class="program-day fade-in">
+                <div class="program-day-number">01</div>
+                <div class="program-day-label">
+                    <span data-lang="en">Day One</span>
+                    <span data-lang="es">Día Uno</span>
+                </div>
+                <h3 data-lang="en">Arrival & Ignition</h3>
+                <h3 data-lang="es">Llegada y Encendido</h3>
+                <div class="program-day-date">
+                    <span data-lang="en">Thursday, February 13</span>
+                    <span data-lang="es">Jueves, 13 de febrero</span>
+                </div>
+                <ul>
+                    <li data-lang="en">Welcome reception</li>
+                    <li data-lang="es">Recepción de bienvenida</li>
+                    <li data-lang="en">Opening keynote</li>
+                    <li data-lang="es">Conferencia inaugural</li>
+                    <li data-lang="en">Communal dinner</li>
+                    <li data-lang="es">Cena comunitaria</li>
+                </ul>
+            </div>
+            <div class="program-day fade-in fade-in-delay-1">
+                <div class="program-day-number">02</div>
+                <div class="program-day-label">
+                    <span data-lang="en">Day Two</span>
+                    <span data-lang="es">Día Dos</span>
+                </div>
+                <h3 data-lang="en">The Main Stage</h3>
+                <h3 data-lang="es">El Escenario Principal</h3>
+                <div class="program-day-date">
+                    <span data-lang="en">Friday, February 14</span>
+                    <span data-lang="es">Viernes, 14 de febrero</span>
+                </div>
+                <ul>
+                    <li data-lang="en">Anchor talks</li>
+                    <li data-lang="es">Conferencias principales</li>
+                    <li data-lang="en">AI∩* open sessions</li>
+                    <li data-lang="es">Sesiones abiertas AI∩*</li>
+                    <li data-lang="en">Lightning rounds</li>
+                    <li data-lang="es">Rondas relámpago</li>
+                    <li data-lang="en">Dinner in Westport</li>
+                    <li data-lang="es">Cena en Westport</li>
+                </ul>
+            </div>
+            <div class="program-day fade-in fade-in-delay-2">
+                <div class="program-day-number">03</div>
+                <div class="program-day-label">
+                    <span data-lang="en">Day Three</span>
+                    <span data-lang="es">Día Tres</span>
+                </div>
+                <h3 data-lang="en">Hands & Hearts</h3>
+                <h3 data-lang="es">Manos y Corazón</h3>
+                <div class="program-day-date">
+                    <span data-lang="en">Saturday, February 15</span>
+                    <span data-lang="es">Sábado, 15 de febrero</span>
+                </div>
+                <ul>
+                    <li data-lang="en">Hands-on workshops</li>
+                    <li data-lang="es">Talleres prácticos</li>
+                    <li data-lang="en">The Conversation</li>
+                    <li data-lang="es">La Conversación</li>
+                    <li data-lang="en">Closing gala</li>
+                    <li data-lang="es">Gala de clausura</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI NATIVE -->
+    <div class="divider"></div>
+    <section class="contained fade-in">
+        <div class="section-label">
+            <span data-lang="en">AI-Native</span>
+            <span data-lang="es">Nativo de IA</span>
+        </div>
+        <h2 class="section-heading">
+            <span data-lang="en">The first AI conference<br><span class="accent">built by AI.</span></span>
+            <span data-lang="es">La primera conferencia de IA<br><span class="accent">construida por IA.</span></span>
+        </h2>
+        <p class="ai-native-statement">
+            <span data-lang="en">AI∩* is designed, produced, and delivered through <em>end-to-end AI collaboration</em>. From concept to brand to logistics to the page you're reading now. One person. One AI. One event. This isn't a gimmick. It's the thesis, proved.</span>
+            <span data-lang="es">AI∩* está diseñada, producida y entregada a través de <em>colaboración de extremo a extremo con IA</em>. Desde el concepto hasta la marca, la logística y la página que estás leyendo ahora. Una persona. Una IA. Un evento. No es un truco. Es la tesis, demostrada.</span>
+        </p>
+        <div class="ai-chain">
+            <div class="ai-chain-item fade-in">
+                <h4 data-lang="en">Concept & Identity</h4>
+                <h4 data-lang="es">Concepto e Identidad</h4>
+                <p data-lang="en">Name, brand, visual system</p>
+                <p data-lang="es">Nombre, marca, sistema visual</p>
+            </div>
+            <div class="ai-chain-item fade-in fade-in-delay-1">
+                <h4 data-lang="en">Program Design</h4>
+                <h4 data-lang="es">Diseño del Programa</h4>
+                <p data-lang="en">Structure, format, session architecture</p>
+                <p data-lang="es">Estructura, formato, arquitectura de sesiones</p>
+            </div>
+            <div class="ai-chain-item fade-in fade-in-delay-2">
+                <h4 data-lang="en">Communications</h4>
+                <h4 data-lang="es">Comunicaciones</h4>
+                <p data-lang="en">Website, outreach, content</p>
+                <p data-lang="es">Sitio web, difusión, contenido</p>
+            </div>
+            <div class="ai-chain-item fade-in">
+                <h4 data-lang="en">Logistics</h4>
+                <h4 data-lang="es">Logística</h4>
+                <p data-lang="en">Venue research, travel, coordination</p>
+                <p data-lang="es">Investigación de sedes, viajes, coordinación</p>
+            </div>
+            <div class="ai-chain-item fade-in fade-in-delay-1">
+                <h4 data-lang="en">Translation</h4>
+                <h4 data-lang="es">Traducción</h4>
+                <p data-lang="en">Full bilingual EN↔ES</p>
+                <p data-lang="es">Bilingüe completo EN↔ES</p>
+            </div>
+            <div class="ai-chain-item fade-in fade-in-delay-2">
+                <h4 data-lang="en">Documentation</h4>
+                <h4 data-lang="es">Documentación</h4>
+                <p data-lang="en">The process becomes the story</p>
+                <p data-lang="es">El proceso se convierte en la historia</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- LOCATION -->
+    <div class="divider"></div>
+    <section class="contained fade-in" id="location">
+        <div class="section-label">
+            <span data-lang="en">The Location</span>
+            <span data-lang="es">La Ubicación</span>
+        </div>
+        <h2 class="section-heading">
+            <span data-lang="en"><span class="accent">Westport,</span><br>Co. Mayo, Ireland</span>
+            <span data-lang="es"><span class="accent">Westport,</span><br>Co. Mayo, Irlanda</span>
+        </h2>
+        <div class="location-grid">
+            <div class="location-info">
+                <p data-lang="en">On Ireland's Atlantic coast, Westport is one of the most beautiful towns in the country. Georgian streets, Clew Bay, Croagh Patrick on the horizon. A place where the landscape does the talking and the conversations go deeper.</p>
+                <p data-lang="es">En la costa atlántica de Irlanda, Westport es uno de los pueblos más hermosos del país. Calles georgianas, la bahía de Clew, Croagh Patrick en el horizonte. Un lugar donde el paisaje habla y las conversaciones van más profundo.</p>
+                <p data-lang="en">This is deliberate. AI∩* happens where you'd least expect an AI conference, because the intersection of technology and place is part of the point.</p>
+                <p data-lang="es">Esto es deliberado. AI∩* sucede donde menos esperarías una conferencia de IA, porque la intersección de tecnología y lugar es parte del sentido.</p>
+                <p class="location-coords">53.8008° N, 9.5181° W</p>
+            </div>
+            <div class="location-travel">
+                <h4 data-lang="en">Getting There</h4>
+                <h4 data-lang="es">Cómo Llegar</h4>
+                <ul>
+                    <li data-lang="en"><strong>Ireland West Airport Knock (NOC)</strong> 55 min drive. Direct flights from UK and European hubs.</li>
+                    <li data-lang="es"><strong>Aeropuerto Ireland West Knock (NOC)</strong> 55 min en auto. Vuelos directos desde Reino Unido y Europa.</li>
+                    <li data-lang="en"><strong>Dublin Airport (DUB)</strong> 3.5hr drive or scenic train via Heuston station.</li>
+                    <li data-lang="es"><strong>Aeropuerto de Dublín (DUB)</strong> 3.5hr en auto o tren escénico vía estación Heuston.</li>
+                    <li data-lang="en"><strong>From Mexico</strong> MEX→DUB direct (Aeroméxico), then train or group shuttle.</li>
+                    <li data-lang="es"><strong>Desde México</strong> MEX→DUB directo (Aeroméxico), luego tren o transporte grupal.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- HOSTED -->
+    <div class="divider"></div>
+    <section class="contained hosted fade-in">
+        <div class="section-label">
+            <span data-lang="en">Hosted By</span>
+            <span data-lang="es">Organizado Por</span>
+        </div>
+        <p class="hosted-org"><span>Five Innovation Labs</span></p>
+        <p class="section-body" style="margin-top: 1.5rem;">
+            <span data-lang="en">AI∩* is a Five Innovation Labs (5il) event. Curated, not corporate. Intimate, not industrial. Every detail intentional.</span>
+            <span data-lang="es">AI∩* es un evento de Five Innovation Labs (5il). Curado, no corporativo. Íntimo, no industrial. Cada detalle es intencional.</span>
+        </p>
+    </section>
+
+    <!-- CTA -->
+    <div class="divider"></div>
+    <section class="cta-section fade-in" id="register">
+        <div class="section-label" style="justify-content: center;">
+            <span data-lang="en">Join Us</span>
+            <span data-lang="es">Únete</span>
+        </div>
+        <h2 class="section-heading">
+            <span data-lang="en">What's your<br><span class="accent">intersection?</span></span>
+            <span data-lang="es">¿Cuál es tu<br><span class="accent">intersección?</span></span>
+        </h2>
+        <div class="countdown" id="countdown">
+            <div class="countdown-item">
+                <div class="countdown-value" id="cd-days">---</div>
+                <div class="countdown-label">
+                    <span data-lang="en">Days</span>
+                    <span data-lang="es">Días</span>
+                </div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-value" id="cd-hours">--</div>
+                <div class="countdown-label">
+                    <span data-lang="en">Hours</span>
+                    <span data-lang="es">Horas</span>
+                </div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-value" id="cd-mins">--</div>
+                <div class="countdown-label">
+                    <span data-lang="en">Minutes</span>
+                    <span data-lang="es">Minutos</span>
+                </div>
+            </div>
+            <div class="countdown-item">
+                <div class="countdown-value" id="cd-secs">--</div>
+                <div class="countdown-label">
+                    <span data-lang="en">Seconds</span>
+                    <span data-lang="es">Segundos</span>
+                </div>
+            </div>
+        </div>
+        <p class="cta-subtitle">
+            <span data-lang="en">AI∩* is invitation-only. 80–150 people. Westport, Ireland. February 2027.</span>
+            <span data-lang="es">AI∩* es solo por invitación. 80–150 personas. Westport, Irlanda. Febrero 2027.</span>
+        </p>
+        <a href="mailto:hello@5il.co?subject=AI∩*%20—%20Register%20Interest" class="cta-button">
+            <span data-lang="en">Register Interest</span>
+            <span data-lang="es">Registrar Interés</span>
+        </a>
+        <p class="cta-note">
+            <span data-lang="en">Invitation-based. Limited to 150 attendees.</span>
+            <span data-lang="es">Basado en invitación. Limitado a 150 asistentes.</span>
+        </p>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-logo">AI<span class="f-int">∩</span>*</div>
+        <div class="footer-sub">
+            <span data-lang="en">A Five Innovation Labs event</span>
+            <span data-lang="es">Un evento de Five Innovation Labs</span>
+        </div>
+        <div class="footer-sub">Westport, Co. Mayo, Ireland — February 13–15, 2027</div>
+        <div class="footer-ai">
+            <span data-lang="en">This entire page was designed and built through AI collaboration. The first artifact of the first AI-native conference.</span>
+            <span data-lang="es">Esta página fue diseñada y construida mediante colaboración con IA. El primer artefacto de la primera conferencia nativa de IA.</span>
+        </div>
+    </footer>
+
+    <script>
+        // ===== PARTICLE SYSTEM =====
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let mouse = { x: null, y: null };
+        let animationId;
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        document.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        });
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.5 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.3;
+                this.speedY = (Math.random() - 0.5) * 0.3;
+                this.opacity = Math.random() * 0.4 + 0.1;
+                this.pulseSpeed = Math.random() * 0.02 + 0.005;
+                this.pulsePhase = Math.random() * Math.PI * 2;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.pulsePhase += this.pulseSpeed;
+
+                if (mouse.x !== null) {
+                    const dx = mouse.x - this.x;
+                    const dy = mouse.y - this.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 200) {
+                        const force = (200 - dist) / 200 * 0.02;
+                        this.speedX += dx * force * 0.01;
+                        this.speedY += dy * force * 0.01;
+                    }
+                }
+
+                this.speedX *= 0.99;
+                this.speedY *= 0.99;
+
+                if (this.x < -50 || this.x > canvas.width + 50 || this.y < -50 || this.y > canvas.height + 50) {
+                    this.reset();
+                }
+            }
+            draw() {
+                const pulse = Math.sin(this.pulsePhase) * 0.3 + 0.7;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(74, 142, 204, ${this.opacity * pulse})`;
+                ctx.fill();
+            }
+        }
+
+        const particleCount = Math.min(120, Math.floor(window.innerWidth * window.innerHeight / 12000));
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        function connectParticles() {
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 150) {
+                        const opacity = (1 - dist / 150) * 0.08;
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(74, 142, 204, ${opacity})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            connectParticles();
+            animationId = requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // ===== HERO BACKGROUND SLIDESHOW =====
+        const heroSlides = [
+            {
+                url: 'https://www.esa.int/var/esa/storage/images/esa_multimedia/images/2021/03/space_station_provides_spectacular_view_of_ireland/23210454-1-eng-GB/Space_Station_provides_spectacular_view_of_Ireland.jpg',
+                label: 'Ireland from the ISS — ESA/Tim Peake'
+            },
+            {
+                url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/Clew_Bay_Croagh_Patrick.jpg/1920px-Clew_Bay_Croagh_Patrick.jpg',
+                label: 'Clew Bay & Croagh Patrick, Co. Mayo'
+            },
+            {
+                url: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80',
+                label: 'AI & Global Networks'
+            },
+            {
+                url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Croagh_Patrick%2C_Irelands%27_Holy_Mountain_viewed_from_Clew_Bay._December_2007_-_panoramio.jpg/1920px-Croagh_Patrick%2C_Irelands%27_Holy_Mountain_viewed_from_Clew_Bay._December_2007_-_panoramio.jpg',
+                label: 'Croagh Patrick from Clew Bay'
+            },
+            {
+                url: 'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=1920&q=80',
+                label: 'Artificial Intelligence'
+            },
+            {
+                url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/Clew_Bay%2CCo._Mayo.jpg/1920px-Clew_Bay%2CCo._Mayo.jpg',
+                label: 'Clew Bay from Croagh Patrick'
+            },
+            {
+                url: 'https://images.unsplash.com/photo-1535378917042-10a22c95931a?auto=format&fit=crop&w=1920&q=80',
+                label: 'The Future of Technology'
+            },
+            {
+                url: 'https://upload.wikimedia.org/wikipedia/commons/e/e8/Croagh_Patrick_over_Clew_Bay%2C_pictured_from_Westport_Harbour.JPG',
+                label: 'Croagh Patrick from Westport Harbour'
+            }
+        ];
+
+        const heroBgContainer = document.getElementById('hero-bg');
+        const heroImageLabel = document.getElementById('hero-image-label');
+        let currentSlide = 0;
+
+        // Create slide elements and preload images
+        heroSlides.forEach((slide, i) => {
+            const div = document.createElement('div');
+            div.className = 'hero-bg-slide';
+            div.style.backgroundImage = `url(${slide.url})`;
+            if (i === 0) div.classList.add('active');
+            heroBgContainer.appendChild(div);
+        });
+
+        heroImageLabel.textContent = heroSlides[0].label;
+
+        function advanceSlide() {
+            const slides = heroBgContainer.querySelectorAll('.hero-bg-slide');
+            const outgoing = slides[currentSlide];
+
+            // Fade out and reset scale instantly after fade completes
+            outgoing.classList.remove('active');
+            setTimeout(() => {
+                outgoing.style.transition = 'none';
+                outgoing.style.transform = 'scale(1)';
+                // Force reflow then restore transition
+                outgoing.offsetHeight;
+                outgoing.style.transition = '';
+            }, 2200);
+
+            currentSlide = (currentSlide + 1) % heroSlides.length;
+            const incoming = slides[currentSlide];
+
+            // Ensure incoming starts at scale(1) then breathes to scale(1.06)
+            incoming.style.transition = 'none';
+            incoming.style.transform = 'scale(1)';
+            incoming.offsetHeight;
+            incoming.style.transition = '';
+            incoming.classList.add('active');
+
+            heroImageLabel.textContent = heroSlides[currentSlide].label;
+        }
+
+        setInterval(advanceSlide, 6000);
+
+        // ===== HERO WORD ROTATION =====
+        const rotatingWords = [
+            { text: 'Education', type: 'topic' },
+            { text: 'Work', type: 'topic' },
+            { text: 'Creativity', type: 'topic' },
+            { text: 'Society', type: 'topic' },
+            { text: 'Business', type: 'topic' },
+            { text: 'Health', type: 'topic' },
+            { text: 'Music', type: 'topic' },
+            { text: 'Ethics', type: 'topic' },
+            { text: 'You', type: 'topic' },
+            { text: '*', type: 'star' },
+        ];
+
+        const rotatingContainer = document.getElementById('hero-rotating');
+        let currentWordIndex = 0;
+        let rotationInterval;
+        let hasCycledOnce = false;
+
+        // Create all word elements
+        rotatingWords.forEach((word, i) => {
+            const el = document.createElement('span');
+            el.className = `hero-rotating-word is-${word.type}`;
+            el.textContent = word.text;
+            if (i === 0) el.classList.add('active');
+            rotatingContainer.appendChild(el);
+        });
+
+        // Measure and set container width to the widest word
+        function setRotatingWidth() {
+            const words = rotatingContainer.querySelectorAll('.hero-rotating-word');
+            let maxWidth = 0;
+            words.forEach(w => {
+                w.style.position = 'relative';
+                w.style.opacity = '1';
+                w.style.visibility = 'hidden';
+                const width = w.offsetWidth;
+                if (width > maxWidth) maxWidth = width;
+                w.style.position = '';
+                w.style.opacity = '';
+                w.style.visibility = '';
+            });
+            rotatingContainer.style.width = maxWidth + 'px';
+        }
+        setRotatingWidth();
+        window.addEventListener('resize', setRotatingWidth);
+
+        function rotateWord() {
+            const words = rotatingContainer.querySelectorAll('.hero-rotating-word');
+            const current = words[currentWordIndex];
+
+            // Move current word up and out
+            current.classList.remove('active');
+            current.classList.add('exit-up');
+
+            // After exit animation, reset position
+            setTimeout(() => {
+                current.classList.remove('exit-up');
+            }, 600);
+
+            // Advance to next word
+            currentWordIndex = (currentWordIndex + 1) % rotatingWords.length;
+            const next = words[currentWordIndex];
+
+            // If landing on the star
+            if (rotatingWords[currentWordIndex].type === 'star') {
+                next.classList.add('active');
+
+                // Add the glow pulse after it arrives
+                setTimeout(() => {
+                    next.classList.add('final-glow');
+                }, 100);
+
+                // Pause on star longer, then continue
+                clearInterval(rotationInterval);
+                setTimeout(() => {
+                    next.classList.remove('final-glow');
+                    hasCycledOnce = true;
+                    rotationInterval = setInterval(rotateWord, hasCycledOnce ? 1800 : 2200);
+                    rotateWord();
+                }, 4000);
+            } else {
+                next.classList.add('active');
+            }
+        }
+
+        // Start rotation after a brief initial pause
+        setTimeout(() => {
+            rotationInterval = setInterval(rotateWord, 2200);
+        }, 2500);
+
+        // ===== LANGUAGE TOGGLE =====
+        const btnEn = document.getElementById('btn-en');
+        const btnEs = document.getElementById('btn-es');
+
+        btnEn.addEventListener('click', () => {
+            document.body.classList.remove('lang-es');
+            btnEn.classList.add('active');
+            btnEs.classList.remove('active');
+        });
+
+        btnEs.addEventListener('click', () => {
+            document.body.classList.add('lang-es');
+            btnEs.classList.add('active');
+            btnEn.classList.remove('active');
+        });
+
+        // ===== NAV SCROLL =====
+        const nav = document.querySelector('nav');
+        window.addEventListener('scroll', () => {
+            nav.classList.toggle('scrolled', window.scrollY > 80);
+        });
+
+        // ===== SCROLL ANIMATIONS =====
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, {
+            threshold: 0.08,
+            rootMargin: '0px 0px -80px 0px'
+        });
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+        // ===== COUNTDOWN =====
+        const targetDate = new Date('2027-02-13T09:00:00+00:00').getTime();
+
+        function updateCountdown() {
+            const now = Date.now();
+            const diff = targetDate - now;
+
+            if (diff <= 0) {
+                document.getElementById('cd-days').textContent = '0';
+                document.getElementById('cd-hours').textContent = '0';
+                document.getElementById('cd-mins').textContent = '0';
+                document.getElementById('cd-secs').textContent = '0';
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('cd-days').textContent = days;
+            document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('cd-mins').textContent = String(mins).padStart(2, '0');
+            document.getElementById('cd-secs').textContent = String(secs).padStart(2, '0');
+        }
+
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+
+        // ===== PERFORMANCE: pause particles when not visible =====
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                cancelAnimationFrame(animationId);
+            } else {
+                animateParticles();
+            }
+        });
+    </script>
+
+</body>
+</html>
