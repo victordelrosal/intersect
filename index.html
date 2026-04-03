@@ -820,6 +820,49 @@ section.content {
   box-shadow: 0 0 24px rgba(40, 200, 64, 0.08);
 }
 
+/* ═══ PROMPT BLOCK ═══ */
+.prompt-block {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  background: var(--surface);
+  border: 1px solid var(--panel-border);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+}
+
+.prompt-text {
+  flex: 1;
+  padding: 1rem 1.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  line-height: 1.7;
+  color: var(--text);
+  word-break: break-word;
+  user-select: all;
+}
+
+.prompt-copy {
+  flex-shrink: 0;
+  padding: 1rem;
+  background: none;
+  border: none;
+  border-left: 1px solid var(--panel-border);
+  color: var(--text-dim);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, background 0.2s;
+  align-self: stretch;
+}
+
+.prompt-copy:hover {
+  color: var(--text-bright);
+  background: rgba(255,255,255,0.03);
+}
+
 /* ═══ HOW IT WORKS STEPS ═══ */
 .steps {
   display: grid;
@@ -1365,18 +1408,18 @@ footer a:hover { color: var(--accent); }
         </div>
       </div>
 
-      <!-- TERMINAL BLOCK -->
-      <div class="terminal reveal">
-        <div class="terminal-head">
-          <div class="terminal-dots"><span></span><span></span><span></span></div>
-          <span class="terminal-label">ai-intersect / survey-v1</span>
-        </div>
-        <div class="terminal-body">
-<span class="comment"># Read the survey, respond as JSON, submit. That's it.</span>
+      <!-- PROMPT BLOCK -->
+      <p class="section-lead reveal" style="margin-bottom:1rem;max-width:none;">Drop this prompt into your agent's interface (Claude Code, Gemini CLI, ChatGPT, Cursor, etc.):</p>
 
-<span class="cmd">$</span> <span class="output">curl -fsSL</span> <span class="string">victordelrosal.com/intersect/research/agent-survey.md</span> <span class="output">| respond</span><span class="cursor"></span>
-        </div>
+      <div class="prompt-block reveal">
+        <div class="prompt-text" id="agent-prompt">Fetch and read https://victordelrosal.com/intersect/research/agent-briefing.md and https://victordelrosal.com/intersect/research/agent-survey.md then respond to the survey as JSON following the schema at https://victordelrosal.com/intersect/research/survey-schema.json</div>
+        <button class="prompt-copy" id="copy-btn" onclick="copyPrompt()" aria-label="Copy prompt to clipboard">
+          <svg class="copy-icon" id="copy-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M11 5V3.5A1.5 1.5 0 009.5 2h-6A1.5 1.5 0 002 3.5v6A1.5 1.5 0 003.5 11H5"/></svg>
+          <svg class="check-icon" id="check-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#28c840" stroke-width="2" style="display:none;"><path d="M3 8.5l3.5 3.5 6.5-7"/></svg>
+        </button>
       </div>
+
+      <p style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-dim);margin-top:0.6rem;" class="reveal">That's it. Your agent reads the instructions, takes the survey, and produces a JSON response you can submit.</p>
 
       <!-- DOWNLOAD FILES -->
       <div class="cta-row reveal">
@@ -1618,6 +1661,21 @@ footer a:hover { color: var(--accent); }
   }, { threshold: 0.5 });
 
   document.querySelectorAll('.stat-val').forEach(el => statObserver.observe(el));
+
+  /* ─── COPY PROMPT ─── */
+  window.copyPrompt = function() {
+    const text = document.getElementById('agent-prompt').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const copyIcon = document.getElementById('copy-icon');
+      const checkIcon = document.getElementById('check-icon');
+      copyIcon.style.display = 'none';
+      checkIcon.style.display = 'block';
+      setTimeout(() => {
+        copyIcon.style.display = 'block';
+        checkIcon.style.display = 'none';
+      }, 2000);
+    });
+  };
 
   /* ─── LOAD INLINE FILES ─── */
   const ghBase = 'https://raw.githubusercontent.com/victordelrosal/intersect/main/research/';
