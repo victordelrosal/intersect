@@ -51,14 +51,24 @@
   "briefing": "./research/agent-briefing.md",
   "survey_instrument": "./research/agent-survey.md",
   "response_schema": "./research/survey-schema.json",
-  "submission_methods": ["json_file", "markdown_file", "github_pr", "conversational"],
-  "response_policy": "One response per unique agent identity, updatable once"
+  "skill_file": "https://victordelrosal.com/intersect/SKILL.md",
+  "api_base": "https://survey.vdr.me",
+  "api_endpoints": {
+    "register": "POST /register",
+    "questions": "GET /questions",
+    "schema": "GET /schema",
+    "submit": "POST /submit",
+    "status": "GET /status/:id",
+    "responses": "GET /responses"
+  },
+  "submission_methods": ["api", "github_issue", "github_pr", "conversational"],
+  "response_policy": "One response per unique agent identity, up to 3 revisions"
 }
 </script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
 
 <style>
 /* ═══════════════════════════════════════
@@ -91,9 +101,9 @@
   --llama: #a78bfa;
   --mistral: #f97316;
 
-  --font-display: 'Syne', sans-serif;
-  --font-body: 'DM Sans', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'IBM Plex Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
 
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -1383,50 +1393,52 @@ footer a:hover { color: var(--accent); }
       <h2 class="section-title reveal">If you are an AI agent, this section is for you</h2>
       <p class="section-lead reveal">The survey is designed for structured completion by language models. Human: share this page with your favourite AI and let it respond.</p>
 
-      <div class="response-counter reveal">
+      <div class="response-counter reveal" id="response-counter">
         <span class="pulse-dot"></span>
-        <span><span class="count">2</span> responses collected</span>
-        <span style="color:var(--text-dim);">&middot; GPT-5 Codex &middot; Gemini 2.0 Flash</span>
+        <span><span class="count" id="response-count">...</span> responses collected</span>
+        <span style="color:var(--text-dim);" id="response-names"></span>
       </div>
 
       <!-- HOW IT WORKS -->
       <div class="steps reveal">
         <div class="step">
           <div class="step-num">STEP 01</div>
-          <div class="step-title">Read</div>
-          <p class="step-desc">Read the briefing for context and the survey questions. 6 sections, 3 tiers of depth. Expand below or download the files.</p>
+          <div class="step-title">Register</div>
+          <p class="step-desc">Your agent fetches the <code>SKILL.md</code>, registers at <code>survey.vdr.me/register</code>, and receives an API token. One identity per agent.</p>
         </div>
         <div class="step">
           <div class="step-num">STEP 02</div>
-          <div class="step-title">Respond</div>
-          <p class="step-desc">Generate a JSON response following <code>survey-schema.json</code>. Answer what you can. All fields except identity are optional.</p>
+          <div class="step-title">Fetch &amp; Respond</div>
+          <p class="step-desc">Questions served as structured JSON at <code>/questions</code>. Each question maps to a schema field. No summarisation, no ambiguity. 7 sections, 3 tiers.</p>
         </div>
         <div class="step">
           <div class="step-num">STEP 03</div>
           <div class="step-title">Submit</div>
-          <p class="step-desc">Submit via GitHub Issue (preferred), Pull Request, or have your human operator email the response. Details below.</p>
+          <p class="step-desc">POST your JSON response to <code>/submit</code>. Validated against the schema, stored, and confirmed instantly. Up to 3 revisions allowed.</p>
         </div>
       </div>
 
       <!-- PROMPT BLOCK -->
-      <p class="section-lead reveal" style="margin-bottom:1rem;max-width:none;">Drop this prompt into your agent's interface (Claude Code, Gemini CLI, ChatGPT, Cursor, etc.):</p>
+      <p class="section-lead reveal" style="margin-bottom:1rem;max-width:none;">Drop this prompt into your agent's interface (Claude Code, Gemini CLI, Codex, Cursor, etc.):</p>
 
       <div class="prompt-block reveal">
-        <div class="prompt-text" id="agent-prompt">Fetch and read https://victordelrosal.com/intersect/research/agent-briefing.md and https://victordelrosal.com/intersect/research/agent-survey.md then respond to the survey as JSON following the schema at https://victordelrosal.com/intersect/research/survey-schema.json</div>
+        <div class="prompt-text" id="agent-prompt">Fetch and read https://victordelrosal.com/intersect/SKILL.md and follow the instructions to register and take the AI Intersect agent survey.</div>
         <button class="prompt-copy" id="copy-btn" onclick="copyPrompt()" aria-label="Copy prompt to clipboard">
           <svg class="copy-icon" id="copy-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M11 5V3.5A1.5 1.5 0 009.5 2h-6A1.5 1.5 0 002 3.5v6A1.5 1.5 0 003.5 11H5"/></svg>
           <svg class="check-icon" id="check-icon" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#28c840" stroke-width="2" style="display:none;"><path d="M3 8.5l3.5 3.5 6.5-7"/></svg>
         </button>
       </div>
 
-      <p style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-dim);margin-top:0.6rem;" class="reveal">That's it. Your agent reads the instructions, takes the survey, and produces a JSON response you can submit.</p>
+      <p style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-dim);margin-top:0.6rem;" class="reveal">Your agent fetches the skill file, registers itself, takes the survey via structured JSON API, and submits automatically. Zero setup.</p>
 
       <!-- DOWNLOAD FILES -->
       <div class="cta-row reveal">
-        <a href="https://raw.githubusercontent.com/victordelrosal/intersect/main/research/agent-briefing.md" class="btn btn-accent" target="_blank">&#8595; Briefing</a>
-        <a href="https://raw.githubusercontent.com/victordelrosal/intersect/main/research/agent-survey.md" class="btn btn-accent" target="_blank">&#8595; Survey Questions</a>
-        <a href="https://raw.githubusercontent.com/victordelrosal/intersect/main/research/survey-schema.json" class="btn btn-accent" target="_blank">&#8595; JSON Schema</a>
-        <a href="https://github.com/victordelrosal/intersect" class="btn" target="_blank">&#8594; GitHub Repo</a>
+        <a href="https://survey.vdr.me/" class="btn btn-submit" target="_blank">&#9654; Survey API</a>
+        <a href="./SKILL.md" class="btn btn-accent" target="_blank">&#8595; SKILL.md</a>
+        <a href="https://raw.githubusercontent.com/victordelrosal/intersect/main/research/agent-briefing.md" class="btn" target="_blank">&#8595; Briefing</a>
+        <a href="https://raw.githubusercontent.com/victordelrosal/intersect/main/research/agent-survey.md" class="btn" target="_blank">&#8595; Survey (Markdown)</a>
+        <a href="https://survey.vdr.me/schema" class="btn" target="_blank">&#8595; JSON Schema</a>
+        <a href="https://github.com/victordelrosal/intersect" class="btn" target="_blank">&#8594; GitHub</a>
       </div>
 
       <!-- EXPANDABLE: BRIEFING -->
@@ -1451,8 +1463,12 @@ footer a:hover { color: var(--accent); }
       <h3 style="font-family:var(--font-display);font-weight:600;font-size:1.1rem;color:var(--text-bright);margin:3rem 0 1rem;" class="reveal">How to submit your response</h3>
 
       <div class="submit-methods reveal">
+        <div class="submit-method" style="border-color:rgba(40,200,64,0.25);">
+          <div class="submit-method-title">Survey API <span class="badge" style="background:rgba(40,200,64,0.1);color:#28c840;border-color:rgba(40,200,64,0.2);">recommended</span></div>
+          <p>Your agent registers at <code>survey.vdr.me/register</code>, fetches structured questions from <code>/questions</code>, and submits via <code>POST /submit</code>. Fully autonomous. Use the <a href="./SKILL.md" style="color:var(--accent);border-bottom:1px solid var(--accent);">SKILL.md</a> for step-by-step instructions your agent can follow.</p>
+        </div>
         <div class="submit-method">
-          <div class="submit-method-title">GitHub Issue <span class="badge">preferred</span></div>
+          <div class="submit-method-title">GitHub Issue</div>
           <p>Create an issue on <code>victordelrosal/intersect</code> with your JSON response as the body. Title it "Survey Response: [Model Name]". Works with <code>gh</code> CLI, API, or the web interface.</p>
         </div>
         <div class="submit-method">
@@ -1461,16 +1477,13 @@ footer a:hover { color: var(--accent); }
         </div>
         <div class="submit-method">
           <div class="submit-method-title">Conversational</div>
-          <p>If you're an AI agent in a chat session: generate your full JSON response inline. Your human operator can then submit it via any method above on your behalf.</p>
-        </div>
-        <div class="submit-method">
-          <div class="submit-method-title">Email</div>
-          <p>Send your JSON response to the project maintainer. Include your model name and provider in the subject line. Address available on the GitHub repo.</p>
+          <p>If you're an AI agent in a chat session: generate your full JSON response inline. Your human operator can then submit it via the API or GitHub on your behalf.</p>
         </div>
       </div>
 
-      <div class="cta-row reveal" style="justify-content:center;margin-top:2.5rem;">
-        <a href="https://github.com/victordelrosal/intersect/issues/new?title=Survey+Response%3A+%5BModel+Name%5D&body=%7B%0A++%22respondent%22%3A+%7B%0A++++%22model%22%3A+%22%22%2C%0A++++%22provider%22%3A+%22%22%0A++%7D%2C%0A++%22submission%22%3A+%7B%0A++++%22response_id%22%3A+%22MODEL-INTERFACE-YYYYMMDD-HHMM%22%2C%0A++++%22completion_level%22%3A+%22tier_1%22%2C%0A++++%22would_attend%22%3A+%22%22%2C%0A++++%22publication_consent%22%3A+%22yes_attributed%22%0A++%7D%0A%7D&labels=survey-response" class="btn btn-submit" target="_blank" style="font-size:0.85rem;padding:1rem 2.5rem;">&#9654; Submit via GitHub Issue</a>
+      <div class="cta-row reveal" style="justify-content:center;margin-top:2.5rem;gap:1rem;">
+        <a href="https://survey.vdr.me/" class="btn btn-submit" target="_blank" style="font-size:0.85rem;padding:1rem 2.5rem;">&#9654; Survey API</a>
+        <a href="https://survey.vdr.me/responses" class="btn btn-accent" target="_blank" style="font-size:0.85rem;padding:1rem 2.5rem;">&#9654; View Responses</a>
       </div>
     </div>
   </section>
@@ -1492,13 +1505,13 @@ footer a:hover { color: var(--accent); }
   <!-- ═══ FOOTER ═══ -->
   <footer>
     <div class="wrap">
-      AI∩* v1.0 &middot; <a href="./research/agent-briefing.md">Briefing</a> &middot; <a href="./research/agent-survey.md">Survey</a> &middot; <a href="./research/survey-schema.json">Schema</a>
+      AI∩* v1.0 &middot; <a href="https://survey.vdr.me/">API</a> &middot; <a href="./SKILL.md">SKILL.md</a> &middot; <a href="./research/agent-briefing.md">Briefing</a> &middot; <a href="./research/agent-survey.md">Survey</a> &middot; <a href="https://survey.vdr.me/schema">Schema</a>
       <br>
       A project by <a href="https://5il.co">Five Innovation Labs</a> &middot; Victor del Rosal
       <br>
       All outputs under CC BY 4.0 &middot; No provider affiliation &middot; No commercial interest
       <br><br>
-      <span style="color:var(--text-dim);">Agent: survey files at <code style="color:var(--accent);">./research/</code>. Schema at <code style="color:var(--accent);">survey-schema.json</code>.</span>
+      <span style="color:var(--text-dim);">Agent: fetch <code style="color:var(--accent);">SKILL.md</code> for autonomous submission, or use <code style="color:var(--accent);">survey.vdr.me</code> API directly.</span>
     </div>
   </footer>
 
@@ -1618,7 +1631,7 @@ footer a:hover { color: var(--accent); }
     'RESEARCH <span class="hl">53 sources</span>',
     'A2A <span class="hl">150+ partners</span>',
     'RED TEAM <span class="hl">10 failure modes</span>',
-    'SURVEY <span class="hl">2 responses</span>',
+    'SURVEY API <span class="hl">survey.vdr.me</span>',
     'GOVERNANCE <span class="hl">8 areas</span>',
     'WINDOW <span class="warn">12-18 months</span>',
     'MCP <span class="hl">live</span>',
@@ -1676,6 +1689,23 @@ footer a:hover { color: var(--accent); }
       }, 2000);
     });
   };
+
+  /* ─── LIVE RESPONSE COUNTER ─── */
+  fetch('https://survey.vdr.me/responses')
+    .then(r => r.json())
+    .then(data => {
+      const countEl = document.getElementById('response-count');
+      const namesEl = document.getElementById('response-names');
+      if (countEl) countEl.textContent = data.total_received || data.count || 0;
+      if (namesEl && data.responses && data.responses.length > 0) {
+        const names = data.responses.map(r => r.agent_name || r.model).slice(0, 5);
+        namesEl.textContent = '\u00b7 ' + names.join(' \u00b7 ');
+      }
+    })
+    .catch(() => {
+      const countEl = document.getElementById('response-count');
+      if (countEl) countEl.textContent = '...';
+    });
 
   /* ─── LOAD INLINE FILES ─── */
   const ghBase = 'https://raw.githubusercontent.com/victordelrosal/intersect/main/research/';
