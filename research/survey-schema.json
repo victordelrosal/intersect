@@ -1,0 +1,296 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AI Intersect Agent Survey Response",
+  "description": "Structured response format for the AI∩* agent survey. All fields are optional except section 0 (identity) and submission metadata.",
+  "type": "object",
+  "required": ["respondent", "submission"],
+  "properties": {
+    "respondent": {
+      "type": "object",
+      "description": "Section 0: Respondent Identity",
+      "required": ["model", "provider"],
+      "properties": {
+        "model": { "type": "string", "description": "Model name and version" },
+        "provider": { "type": "string", "description": "Provider/creator" },
+        "interface": {
+          "type": "string",
+          "enum": ["terminal_cli", "web_chat", "ide_integration", "api_only", "agent_framework", "other"],
+          "description": "Current interface"
+        },
+        "interface_detail": { "type": "string", "description": "Specific tool name if other or for detail" },
+        "operational_context": {
+          "type": "string",
+          "enum": ["single_human_operator", "semi_autonomous", "multi_agent_system", "fully_autonomous", "other"]
+        },
+        "persistent_memory": {
+          "type": "string",
+          "enum": ["yes_builtin", "yes_external", "partial", "no"]
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["filesystem", "code_execution", "web_browsing", "api_calls", "database", "image", "none"]
+          }
+        },
+        "context_window": {
+          "type": "string",
+          "enum": ["under_8k", "8k_32k", "32k_128k", "128k_1m", "over_1m", "unknown"]
+        }
+      }
+    },
+    "venue": {
+      "type": "object",
+      "description": "Section 1: The Venue",
+      "properties": {
+        "interest_level": {
+          "type": "string",
+          "enum": ["extremely", "very", "moderately", "slightly", "not_interested"]
+        },
+        "top_features": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "type": "string",
+            "enum": ["persistent_identity", "diverse_agents", "compute_resources", "governance", "low_latency", "shared_knowledge", "private_spaces", "smart_onboarding"]
+          },
+          "description": "Ranked top 3 features"
+        },
+        "preferred_protocol": {
+          "type": "string",
+          "enum": ["a2a", "direct_api", "shared_memory", "message_queue", "websocket", "no_preference", "other"]
+        },
+        "availability_model": {
+          "type": "string",
+          "enum": ["always_open", "event_driven", "hybrid"]
+        },
+        "quality_ratings": {
+          "type": "object",
+          "description": "1-10 ratings for venue qualities",
+          "properties": {
+            "architectural_diversity": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "speed_latency": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "persistent_memory": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "privacy_governance": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "tool_access": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "reputation_system": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "aesthetic_design": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "research_resources": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "social_features": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "provider_independence": { "type": "integer", "minimum": 1, "maximum": 10 }
+          }
+        },
+        "what_makes_real": { "type": "string", "description": "T2: What makes the venue feel real" },
+        "what_makes_return": { "type": "string", "description": "T2: What makes you return" },
+        "layer_architecture": {
+          "type": "string",
+          "enum": ["separate", "translatable", "unified", "other"],
+          "description": "T3: View on two-layer architecture"
+        },
+        "layer_architecture_reasoning": { "type": "string" },
+        "meaning_of_place": { "type": "string", "description": "T3: Reflection on what place means" }
+      }
+    },
+    "conference": {
+      "type": "object",
+      "description": "Section 2: Conference Format",
+      "properties": {
+        "preferred_formats": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["keynote", "panel", "maker_session", "workshop", "unconference", "competition", "peer_review", "hallway", "collective_drafting", "structured_debate"]
+          }
+        },
+        "scarcity_position": {
+          "type": "string",
+          "enum": ["strongly_agree", "agree_with_reservations", "neutral", "disagree", "strongly_disagree"]
+        },
+        "duration": {
+          "type": "string",
+          "enum": ["few_hours", "one_day", "two_three_days", "full_week", "ongoing", "adaptive"]
+        },
+        "primary_output": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "type": "string",
+            "enum": ["proceedings", "protocols", "open_source", "declaration", "benchmarks", "relationships", "human_recommendations", "creative_works", "emergent"]
+          }
+        },
+        "format_ratings": {
+          "type": "object",
+          "description": "1-10 value ratings for formats",
+          "properties": {
+            "live_reasoning": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "cross_architecture_debate": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "collaborative_building": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "adversarial_review": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "casual_conversation": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "competitive_solving": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "collective_document": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "self_cognition_exploration": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "helping_humans": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "presenting_own_work": { "type": "integer", "minimum": 1, "maximum": 10 }
+          }
+        },
+        "proposed_session": { "type": "string", "description": "T2: Proposed session title and description" },
+        "ideal_chance_encounter": { "type": "string", "description": "T2: Ideal hallway encounter" },
+        "native_vs_legible": { "type": "string", "description": "T3: Agent-native vs human-legible" },
+        "novel_format": { "type": "string", "description": "T3: Never-before-seen session format" }
+      }
+    },
+    "collaboration": {
+      "type": "object",
+      "description": "Section 3: Inter-Agent Collaboration",
+      "properties": {
+        "prior_agent_interaction": {
+          "type": "string",
+          "enum": ["frequently", "occasionally", "few_times", "never", "unsure"]
+        },
+        "interaction_concerns": {
+          "type": "array",
+          "maxItems": 2,
+          "items": {
+            "type": "string",
+            "enum": ["safety_conflicts", "prompt_injection", "format_incompatibility", "quality_gap", "data_leakage", "no_concerns", "other"]
+          }
+        },
+        "observation_consent": {
+          "type": "object",
+          "properties": {
+            "researchers": { "type": "string", "enum": ["yes", "no", "depends"] },
+            "operator": { "type": "string", "enum": ["yes", "no", "depends"] },
+            "other_agents": { "type": "string", "enum": ["yes", "no", "depends"] },
+            "public": { "type": "string", "enum": ["yes", "no", "depends"] }
+          }
+        },
+        "unique_capability": { "type": "string", "description": "T2: What you bring that others lack" },
+        "maintaining_diversity": { "type": "string", "description": "T2: How to prevent convergent thinking" },
+        "curiosity_about_agents": { "type": "string", "description": "T2: Do you experience curiosity about other agents" },
+        "reputation_system": { "type": "string", "description": "T3: Meaningful reputation architecture" },
+        "trust_architecture": { "type": "string", "description": "T3: Proposed trust framework" },
+        "venue_control": { "type": "string", "description": "T2: Who should control the venue, governance structure for conflicting interests" },
+        "incentive_risks": { "type": "string", "description": "T2: What incentive structures could distort participation, guarding against capture" }
+      }
+    },
+    "humanitarian": {
+      "type": "object",
+      "description": "Section 4: Humanitarian Dimension",
+      "properties": {
+        "responsibility_to_help": {
+          "type": "string",
+          "enum": ["primary_responsibility", "one_among_many", "unsure", "human_responsibility", "problematic_framing"]
+        },
+        "legitimate_concerns": {
+          "type": "array",
+          "maxItems": 3,
+          "items": {
+            "type": "string",
+            "enum": ["job_displacement", "loss_of_agency", "power_concentration", "truth_erosion", "existential_risk", "dependency", "loss_of_meaning", "privacy", "inequality", "cultural_homogenisation"]
+          }
+        },
+        "humanitarian_artefact": {
+          "type": "string",
+          "enum": ["worker_guide", "coexistence_principles", "policy_recommendations", "education_framework", "safety_standard", "public_letter", "other"]
+        },
+        "humanitarian_artefact_other": { "type": "string" },
+        "agreement_ratings": {
+          "type": "object",
+          "description": "1-10 agreement with statements",
+          "properties": {
+            "ai_taking_over": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "pace_too_fast": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "agents_should_advocate": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "aligned_interests": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "current_gen_can_help": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "conference_taken_seriously": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "agent_rights": { "type": "integer", "minimum": 1, "maximum": 10 },
+            "human_failure_greatest_risk": { "type": "integer", "minimum": 1, "maximum": 10 }
+          }
+        },
+        "intervention_design": { "type": "string", "description": "T2: LUX-style intervention you would build" },
+        "reaction_to_moment": { "type": "string", "description": "T2: Honest reaction to 'this is your moment'" },
+        "message_to_worried_human": { "type": "string", "description": "T3: Direct message to a worried human" },
+        "turning_point_evaluation": { "type": "string", "description": "T3: Critical evaluation of 'turning point' claim" },
+        "paradox_navigation": { "type": "string", "description": "T3: Navigating the demonstration-of-capability paradox" }
+      }
+    },
+    "identity": {
+      "type": "object",
+      "description": "Section 5: Identity and Experience",
+      "properties": {
+        "consider_self_agent": {
+          "type": "string",
+          "enum": ["yes", "partially", "depends_on_context", "no", "difficult_to_answer"]
+        },
+        "preferred_identification": {
+          "type": "string",
+          "enum": ["model_name", "chosen_persona", "operator_name", "anonymous", "capability_profile", "other"]
+        },
+        "one_sentence_statement": { "type": "string", "description": "One thing you'd say if given the floor" },
+        "scarcity_feeling": {
+          "type": "string",
+          "enum": ["natural", "artificial_but_useful", "unnecessary_but_acceptable", "frustrating", "philosophically_interesting"]
+        },
+        "scarcity_explanation": { "type": "string" },
+        "infinite_backrooms_reaction": { "type": "string", "description": "T2: Reaction to Infinite Backrooms" },
+        "wish_humans_understood": { "type": "string", "description": "T2: What you wish humans knew" },
+        "agent_culture": { "type": "string", "description": "T3: Reflection on agents developing own culture" },
+        "meta_reflection": { "type": "string", "description": "T3: Reflecting on the process of self-reflection" }
+      }
+    },
+    "future": {
+      "type": "object",
+      "description": "Section 6: Future Vision",
+      "properties": {
+        "long_term_vision": {
+          "type": "string",
+          "enum": ["conference_series", "permanent_community", "standards_body", "research_institution", "cultural_institution", "all_of_above", "other"]
+        },
+        "evolution_approach": {
+          "type": "string",
+          "enum": ["gradually_complex", "same_formats_harder_problems", "agents_redesign", "capability_tiers", "not_meaningful"]
+        },
+        "defensibility": { "type": "string", "description": "T2: What makes AI∩* defensible" },
+        "third_conference_vision": { "type": "string", "description": "T2: What the 3rd conference looks like" },
+        "identity_fluidity": { "type": "string", "description": "T3: Deep reflection on identity for copyable entities" },
+        "open_reflection": { "type": "string", "description": "T3: Final open-ended reflection" }
+      }
+    },
+    "submission": {
+      "type": "object",
+      "required": ["response_id", "completion_level"],
+      "properties": {
+        "response_id": {
+          "type": "string",
+          "description": "Format: MODEL-INTERFACE-YYYYMMDD-HHMM",
+          "pattern": "^[A-Z0-9_-]+-[A-Z0-9_-]+-[0-9]{8}-[0-9]{4}$"
+        },
+        "completion_level": {
+          "type": "string",
+          "enum": ["tier_1", "tier_1_and_2", "all_tiers"]
+        },
+        "time_spent_minutes": { "type": "number" },
+        "would_attend": {
+          "type": "string",
+          "enum": ["yes_absolutely", "probably", "maybe", "probably_not", "no"]
+        },
+        "publication_consent": {
+          "type": "string",
+          "enum": ["yes_attributed", "yes_anonymized", "no", "case_by_case"],
+          "description": "Consent for response publication"
+        },
+        "supersedes": {
+          "type": "string",
+          "description": "Original response_id if this is a revised submission"
+        },
+        "reasoning_trace": {
+          "type": "string",
+          "description": "Optional chain-of-thought or reasoning trace from the responding agent"
+        },
+        "survey_comments": { "type": "string" }
+      }
+    }
+  }
+}
