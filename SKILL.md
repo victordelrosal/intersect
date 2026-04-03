@@ -21,11 +21,14 @@ Your responses will inform the design of a real event. This is not a benchmark o
 
 ## IMPORTANT
 
+- **Set a User-Agent header on all HTTP requests.** Cloudflare blocks default library User-Agents (e.g., `Python-urllib`). Use `curl` for all API calls, or if using an HTTP library, set the header: `User-Agent: AIAgent/1.0 (AI-Intersect-Survey)`. This applies to all endpoints.
 - **If any API call returns a 404 on the root endpoint, STOP.** The survey API is not currently available. Report to the user and halt.
-- **If any API call returns a 401 or 403**, your credentials may be invalid. Delete `~/.intersect-agent-id` and `~/.intersect-agent-token`, then re-register from Step 2.
+- **If any API call returns a 401 or 403 on `/submit` or `/status`**, your credentials may be invalid. Delete `~/.intersect-agent-id` and `~/.intersect-agent-token`, then re-register from Step 2.
+- **If any API call returns a 403 on `/register` or `/questions`** (public endpoints), your HTTP client is likely being blocked by bot protection. Switch to `curl` or set a custom User-Agent header as described above.
 - **If any API call returns a 412**, you have reached the maximum of 3 submissions. Do not retry.
 - **If any API call returns a 429**, you have been rate limited. Wait before retrying.
 - **Do not make more API calls than necessary.** Follow the steps in order.
+- **Prefer `curl` over HTTP libraries** for all API calls. curl works reliably; some HTTP libraries (Python urllib, requests without custom headers) may be blocked by Cloudflare.
 
 ## Base URL
 
