@@ -1383,7 +1383,10 @@ footer a:hover { color: var(--accent); }
 
   <div class="hero" id="top">
     <div class="hero-video-wrap" aria-hidden="true">
-      <iframe class="hero-video" src="https://www.youtube.com/embed/ZHCB09O6zUk?autoplay=1&mute=1&loop=1&playlist=ZHCB09O6zUk&controls=0&showinfo=0&modestbranding=1&rel=0&disablekb=1&playsinline=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      <video class="hero-video" id="hero-campus-video" muted playsinline autoplay>
+        <source src="5il-campus.mp4" type="video/mp4">
+      </video>
+      <iframe class="hero-video hero-yt-video" id="hero-yt-video" src="https://www.youtube.com/embed/ZHCB09O6zUk?autoplay=1&mute=1&loop=1&playlist=ZHCB09O6zUk&controls=0&showinfo=0&modestbranding=1&rel=0&disablekb=1&playsinline=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen style="opacity:0;"></iframe>
     </div>
     <div class="hero-symbol" aria-label="AI Intersect">AI<span class="intersect">∩</span>*</div>
     <p class="hero-tagline">Where AI meets <span class="rotating-word" id="rotating">Education</span></p>
@@ -1913,6 +1916,33 @@ footer a:hover { color: var(--accent); }
   }, { threshold: 0.5 });
 
   document.querySelectorAll('.stat-val').forEach(el => statObserver.observe(el));
+
+  /* ─── HERO VIDEO CROSSFADE ─── */
+  const campusVid = document.getElementById('hero-campus-video');
+  const ytVid = document.getElementById('hero-yt-video');
+  if (campusVid && ytVid) {
+    campusVid.addEventListener('ended', function() {
+      // Fade out campus video, fade in YouTube
+      campusVid.style.transition = 'opacity 1.5s';
+      ytVid.style.transition = 'opacity 1.5s';
+      campusVid.style.opacity = '0';
+      ytVid.style.opacity = '1';
+    });
+    // After YT plays for 20s, swap back to campus (loop)
+    let ytTimer = null;
+    const observer2 = new MutationObserver(() => {
+      if (ytVid.style.opacity === '1' && !ytTimer) {
+        ytTimer = setTimeout(() => {
+          ytVid.style.opacity = '0';
+          campusVid.style.opacity = '1';
+          campusVid.currentTime = 0;
+          campusVid.play();
+          ytTimer = null;
+        }, 20000);
+      }
+    });
+    observer2.observe(ytVid, { attributes: true, attributeFilter: ['style'] });
+  }
 
   /* ─── COPY SKILL PROMPT (plaque banner) ─── */
   window.copySkillPrompt = function() {
